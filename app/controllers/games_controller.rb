@@ -8,9 +8,14 @@ class GamesController < ApplicationController
   end
 
   def score
+    if !session[:score]
+      @score = 0
+    else
+      @score = session[:score]
+    end
     # raise
-    
     @letters = session[:letters]
+    # @letters = params[:grid] # @dev If using the hidden field tag in new view to pass params
     @message = run_game(params[:word], @letters)
   end
 
@@ -29,7 +34,7 @@ class GamesController < ApplicationController
     res = JSON.parse(serialized)
 
     message = ""
-    # s = score
+
     legit = res["found"] # @dev True or false
 
     attempt_arr = attempt.upcase.chars
@@ -41,9 +46,10 @@ class GamesController < ApplicationController
 
     if legit && on_grid
       message = "Congratulations! #{attempt} is a valid English word!"
-      # s += 10
+      @score += 10
+      session[:score] = @score
     elsif !on_grid
-      message = "Sorry, #{attempt.split('').to_s} is not in the original grid"
+      message = "Sorry, #{attempt.split("").to_s} is not in the original grid"
     else
       message = "Sorry, #{attempt} does not appear to be an english word..."
     end
